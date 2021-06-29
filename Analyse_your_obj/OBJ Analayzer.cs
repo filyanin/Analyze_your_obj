@@ -170,29 +170,36 @@ namespace Analyse_your_obj
             //MarkingAndSaveButton.Enabled = false;
             StartSearchHorizontalAndVerticalButton.Enabled = false;
             
-            if (folderBrowserDialog.ShowDialog() == DialogResult.Cancel)
-                return;
-            string path = folderBrowserDialog.SelectedPath;
 
-            ProcessTextBox.Text += "Начат поиск и запись поверхностей" + "\r\n";
-            bool[] otherMap = new bool[horizontalMap.Length];
-            for (int i = 0; i < otherMap.Length; i++)
+
+            if (folderBrowserDialog.ShowDialog() != DialogResult.Cancel)
             {
-                otherMap[i] = !(horizontalMap[i] || verticalMap[i]);
-            }
+                string path = "";
+                path = folderBrowserDialog.SelectedPath;
+                ProcessTextBox.Text += "Начат поиск и запись поверхностей" + "\r\n";
+                bool[] otherMap = new bool[horizontalMap.Length];
+                for (int i = 0; i < otherMap.Length; i++)
+                {
+                    otherMap[i] = !(horizontalMap[i] || verticalMap[i]);
+                }
 
-            MyCollector.WriteToObjFile(faces, vertices, vertexNormal, horizontalMap,path + "/horizontal.obj");
-            MyCollector.WriteToObjFile(faces, vertices, vertexNormal, verticalMap, path + "/vertical.obj");
-            MyCollector.WriteToObjFile(faces, vertices, vertexNormal, otherMap, path + "/other.obj");
-            ProcessTextBox.Text += "Общие файлы были созданы" + "\r\n";
-            ProcessTextBox.Text += "Начало поиска и записи отдельных поверхностей. Точность: "+ Convert.ToInt32(IgnoreSmallFaces.Value) + " "  + "\r\n";
-            MyCollector.WriteAllPartOfSurface(faces, horizontalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/horizontal");
-            ProcessTextBox.Text += "Созданы файлы горизонтальных поверхностей" + "\r\n";
-            MyCollector.WriteAllPartOfSurface(faces, verticalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/vertical");
-            ProcessTextBox.Text += "Созданы файлы вертикальных поверхностей" + "\r\n";
-            MyCollector.WriteAllPartOfSurface(faces, otherMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/other");
-            ProcessTextBox.Text += "Созданы файлы других поверхностей" + "\r\n";
-            ProcessTextBox.Text += "Запись полностью завершена" + "\r\n";
+                MyCollector.WriteToObjFile(faces, vertices, vertexNormal, horizontalMap, path + "/horizontal.obj");
+                MyCollector.WriteToObjFile(faces, vertices, vertexNormal, verticalMap, path + "/vertical.obj");
+                MyCollector.WriteToObjFile(faces, vertices, vertexNormal, otherMap, path + "/other.obj");
+                ProcessTextBox.Text += "Общие файлы были созданы" + "\r\n";
+                ProcessTextBox.Text += "Начало поиска и записи отдельных поверхностей. Точность: " + Convert.ToInt32(IgnoreSmallFaces.Value) + " " + "\r\n";
+                MyCollector.WriteAllPartOfSurface(faces, horizontalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/horizontal");
+                ProcessTextBox.Text += "Созданы файлы горизонтальных поверхностей" + "\r\n";
+                MyCollector.WriteAllPartOfSurface(faces, verticalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/vertical");
+                ProcessTextBox.Text += "Созданы файлы вертикальных поверхностей" + "\r\n";
+                MyCollector.WriteAllPartOfSurface(faces, otherMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/other");
+                ProcessTextBox.Text += "Созданы файлы других поверхностей" + "\r\n";
+                ProcessTextBox.Text += "Запись полностью завершена" + "\r\n";
+            }
+            else
+            {
+                ProcessTextBox.Text += "Ошибка, путь не указан" + "\r\n";
+            }
 
             open_file.Enabled = true;
             StartSearchHorizontalAndVerticalButton.Enabled = true;

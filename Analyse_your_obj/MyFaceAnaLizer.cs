@@ -64,7 +64,10 @@ namespace Analyse_your_obj
         public static int[] CountUsingOfPoints(List<MyVertex> vertices, List<MyFace> faces, bool[] map)
         {
             int[] listOfVertices = new int[vertices.Count];
-
+            for (int i = 0; i < listOfVertices.Length; i++)
+            {
+                listOfVertices[i] = 0;
+            }
             for (int i = 0; i < map.Length; i++)
             {
                 if (map[i])
@@ -200,54 +203,7 @@ namespace Analyse_your_obj
                         map[tmp] = true;
                 }
             }
-        }
-
-        /*public static void SearchLostHorizontalPoint(List<List<int>> listOfIndexFacesUsingPoints, List<Vertex> vertieces, List<Face> faces, List<Face> HorizontalFaces, int depth)
-        {
-            bool[] containsCheck = new bool[faces.Count];
-            for (int i = 0; i < containsCheck.Length; i++)
-            {
-                containsCheck[i] = false;
-            }
-            foreach (var tmp in HorizontalFaces)
-            {
-                containsCheck[tmp.BaseNumber] = true;
-            }
-            for (int i = 0; i < depth; i++)
-            {
-                List<int> buffer = new List<int>();
-                int[] usingOfPoints = CountUsingOfPoints(vertieces, HorizontalFaces);
-
-                for (int j = 0; j < listOfIndexFacesUsingPoints.Count; j++)
-                {
-                    if (usingOfPoints[j] > 0)
-                    {
-                        foreach (var part in listOfIndexFacesUsingPoints[j])
-                        {
-                            if (!buffer.Contains(part))
-                            {
-                                buffer.Add(part);
-                            }
-                        }
-                    }
-                }
-
-                foreach (var tmp in buffer)
-                {
-                    if (!containsCheck[tmp])
-                    {
-                        if (faces[tmp].Normal.NearToHorizontal(0.2))
-                        {
-                            HorizontalFaces.Add(faces[tmp]);
-                            containsCheck[tmp] = true;
-                        }
-                    }
-                }
-            }
-        }*/
-
-        
-
+        }           
         public static List<List<MyFace>> GetAllSurface(List<List<int>> listOfIndexFacesUsingPoints, List<MyFace> faces, bool[] map, int accuracy)
         {
             

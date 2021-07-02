@@ -120,7 +120,7 @@ namespace Analyse_your_obj
             {
                 double horizontalAccuracy = Convert.ToDouble(HorizontalSearchAccuracyBox.Text);
                 double verticalAccuracy = Convert.ToDouble(VerticalSearchAccuracyBox.Text);
-                if ((horizontalAccuracy < 1) && (verticalAccuracy < 1))
+                if ((horizontalAccuracy <= 1) && (verticalAccuracy <= 1))
                 {
                     ProcessTextBox.Text += "Начало поиска поверхностей" + "\r\n";
                     ProcessTextBox.Text += "Горизонтальная точность: " + horizontalAccuracy + " Вертикальная точность" + verticalAccuracy + " \r\n";
@@ -260,23 +260,46 @@ namespace Analyse_your_obj
             if (CountOfDeletingCiclesBox.Text != "")
             {
                 int number = Convert.ToInt32(CountOfDeletingCiclesBox.Text);
-                ProcessTextBox.Text += "Начато удаление одинокостоящих поверхностей" + "\r\n";
-                if (LiteDeletingRadioButton.Checked)
+                if (number < 20)
                 {
-                    ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, horizontalMap) + "\r\n";
-                    ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, verticalMap) + "\r\n";
+                    ProcessTextBox.Text += "Начато удаление одинокостоящих поверхностей" + "\r\n";
+                    if (LiteDeletingRadioButton.Checked)
+                    {
+                        ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, horizontalMap) + "\r\n";
+                        ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, verticalMap) + "\r\n";
+                    }
+                    if (DeepDeletingRadioButton.Checked)
+                    {
+                        ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, horizontalMap, number) + "\r\n";
+                        ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, verticalMap, number) + "\r\n";
+                    }
+                    if (ExtremeDeletingRadioButton.Checked)
+                    {
+                        ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, horizontalMap, number) + "\r\n";
+                        ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, verticalMap, number) + "\r\n";
+                    }
+                    ProcessTextBox.Text += "Завершено удаление одинокостоящих поверхностей" + "\r\n";
+
+                    int hor = 0;
+                    int vert = 0;
+                    for (int i = 0; i < horizontalMap.Length; i++)
+                    {
+                        if (horizontalMap[i])
+                            hor++;
+                        if (verticalMap[i])
+                            vert++;
+                    }
+
+                    CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
+                    CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
+                    CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
+                    MessageBox.Show("Удаление завершено!");
                 }
-                if (DeepDeletingRadioButton.Checked)
+                else
                 {
-                    ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, horizontalMap, number) + "\r\n";
-                    ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, verticalMap, number) + "\r\n";
+                    MessageBox.Show("Циклы удаления ограничены 20 в целях экономии времени!");
                 }
-                if (ExtremeDeletingRadioButton.Checked)
-                {
-                    ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, horizontalMap, number) + "\r\n";
-                    ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, verticalMap, number) + "\r\n";
-                }
-                ProcessTextBox.Text += "Завершено удаление одинокостоящих поверхностей" + "\r\n";
+
             }
             else
                 MessageBox.Show("Не указано количество циклов!");
@@ -289,19 +312,7 @@ namespace Analyse_your_obj
             SearchAndSaveSurfacesButton.Enabled = true;
             //MarkingAndSaveButton.Enabled = true;
 
-            int hor = 0;
-            int vert = 0;
-            for (int i = 0; i < horizontalMap.Length; i++)
-            {
-                if (horizontalMap[i])
-                    hor++;
-                if (verticalMap[i])
-                    vert++;
-            }
-
-            CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
-            CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
-            CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
+            
         }
 
         private void startAddingButton_Click(object sender, EventArgs e)
@@ -317,26 +328,34 @@ namespace Analyse_your_obj
 
             if ((HorizontalAccuracyAddingBox.Text != "") && (CountOfHorizontalAddingCiclesBox.Text != "") && (VerticalAccuracyAddingBox.Text != "") && (CountVerticalAddingBox.Text != ""))
             {
-                MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces,horizontalMap,MyNormal.IsHorizontal, Convert.ToInt32(CountOfHorizontalAddingCiclesBox.Text), Convert.ToDouble(HorizontalAccuracyAddingBox.Text));
-                MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces, verticalMap, MyNormal.IsVertical, Convert.ToInt32(CountVerticalAddingBox.Text), Convert.ToDouble(VerticalAccuracyAddingBox.Text));
-
-
-                int hor = 0;
-                int vert = 0;
-                for (int i = 0; i < horizontalMap.Length; i++)
+                if ((Convert.ToInt32(CountOfHorizontalAddingCiclesBox.Text) < 20)&&(Convert.ToInt32(CountVerticalAddingBox.Text) < 20) &&(Convert.ToDouble(HorizontalAccuracyAddingBox.Text) <= 1) && (Convert.ToDouble(VerticalAccuracyAddingBox.Text) <= 1))
                 {
-                    if (horizontalMap[i])
-                        hor++;
-                    if (verticalMap[i])
-                        vert++;
+                    MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces, horizontalMap, MyNormal.IsHorizontal, Convert.ToInt32(CountOfHorizontalAddingCiclesBox.Text), Convert.ToDouble(HorizontalAccuracyAddingBox.Text));
+                    MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces, verticalMap, MyNormal.IsVertical, Convert.ToInt32(CountVerticalAddingBox.Text), Convert.ToDouble(VerticalAccuracyAddingBox.Text));
+
+
+                    int hor = 0;
+                    int vert = 0;
+                    for (int i = 0; i < horizontalMap.Length; i++)
+                    {
+                        if (horizontalMap[i])
+                            hor++;
+                        if (verticalMap[i])
+                            vert++;
+                    }
+
+                    CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
+                    CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
+                    CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
+
+                    ProcessTextBox.Text += "Поиск завершён" + "\r\n";
+                    MessageBox.Show("Восстановление поверхностей завершено!");
                 }
-
-                CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
-                CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
-                CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
-
-                ProcessTextBox.Text += "Поиск завершён" + "\r\n";
+                else
+                    MessageBox.Show("Циклы удаления ограничены 20 в целях экономии времени! Точность не должна превышать 1!");
             }
+            else
+                MessageBox.Show("Значения не должны быть пустыми!");
             open_file.Enabled = true;
             StartSearchHorizontalAndVerticalButton.Enabled = true;
             StartAddingButton.Enabled = true;

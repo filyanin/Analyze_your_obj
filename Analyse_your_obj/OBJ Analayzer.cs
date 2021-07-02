@@ -22,6 +22,16 @@ namespace Analyse_your_obj
             open_file.Click += openFile_Click;
             openFileDialog.Filter = "(*.obj)|*.obj";
 
+            CountOfDeletingCiclesBox.KeyPress += textBoxInt_KeyPress;
+            HorizontalAccuracyAddingBox.KeyPress += textBox_KeyPress;
+            VerticalAccuracyAddingBox.KeyPress += textBox_KeyPress;
+            HorizontalSearchAccuracyBox.KeyPress += textBox_KeyPress;
+            VerticalSearchAccuracyBox.KeyPress += textBox_KeyPress;
+            IgnoreNumberBox.KeyPress += textBoxInt_KeyPress;
+            CountOfHorizontalAddingCiclesBox.KeyPress += textBoxInt_KeyPress;
+            CountVerticalAddingBox.KeyPress += textBoxInt_KeyPress;
+
+
             StartAddingButton.Enabled = false;
             StartDeletingButton.Enabled = false;
             //SearchAndSaveObjectButton.Enabled = false;
@@ -34,27 +44,7 @@ namespace Analyse_your_obj
             StartDeletingButton.Click += startDeletingButton_Click;
             StartAddingButton.Click += startAddingButton_Click;
 
-            NumberOfIgnoreSmallSurfaces.Text = Convert.ToString(IgnoreSmallFaces.Value);
-            NumberOfHorizontalSearchAccuracy.Text = Convert.ToString(Convert.ToDouble(HorizontalAccuracySearch.Value) / 200);
-            NumberOfVerticallSearchAccuracy.Text = Convert.ToString(Convert.ToDouble(VerticalAccuracySearch.Value) / 200);
-            NumberOfHorizontalAddingAccuracy.Text = Convert.ToString(Convert.ToDouble(HorizontalAccuracyAdding.Value) / 200);
-            NumberOfVerticalAddingAccuracy.Text = Convert.ToString(Convert.ToDouble(VerticalAccuracyAdding.Value) / 200);
-            NumberOfHorizontalAddingCicles.Text = Convert.ToString(HorizontalCountOfAdding.Value);
-            NumberOfVerticalAddingCicles.Text = Convert.ToString(VerticalCountOfAdding.Value);
-            NumberOfDeletibgCicles.Text = Convert.ToString(CountOfDeepDeletingCicles.Value);
-
-
-            IgnoreSmallFaces.Scroll += trackBar_Scroll;
-            HorizontalAccuracySearch.Scroll += trackBar_Scroll;
-            VerticalAccuracySearch.Scroll += trackBar_Scroll;
-            VerticalAccuracyAdding.Scroll += trackBar_Scroll;
-            HorizontalAccuracyAdding.Scroll += trackBar_Scroll;
-            HorizontalCountOfAdding.Scroll += trackBar_Scroll;
-            VerticalCountOfAdding.Scroll += trackBar_Scroll;
-            CountOfDeepDeletingCicles.Scroll += trackBar_Scroll;
-
-
-
+            
         }
 
         private void OBJ_Analyser_Load(object sender, EventArgs e)
@@ -126,37 +116,50 @@ namespace Analyse_your_obj
             SearchAndSaveSurfacesButton.Enabled = false;
             //MarkingAndSaveButton.Enabled = false;
             StartSearchHorizontalAndVerticalButton.Enabled = false;
-
-            double horizontalAccuracy = Convert.ToDouble(HorizontalAccuracySearch.Value) / 200;
-            double verticalAccuracy = Convert.ToDouble(VerticalAccuracySearch.Value) / 200;
-
-            ProcessTextBox.Text += "Начало поиска поверхностей" + "\r\n";
-            ProcessTextBox.Text += "Горизонтальная точность: " + horizontalAccuracy + " Вертикальная точность" + verticalAccuracy + " \r\n";
-
-            horizontalMap = MyFaceAnaLizer.SearchHorizontalFaces(faces, horizontalAccuracy);
-            verticalMap = MyFaceAnaLizer.SearchVerticalFaces(faces, verticalAccuracy);
-
-            int hor = 0;
-            int vert = 0;
-            for (int i = 0; i < horizontalMap.Length; i++)
+            if ((HorizontalSearchAccuracyBox.Text != "") && (VerticalSearchAccuracyBox.Text != ""))
             {
-                if (horizontalMap[i])
-                    hor++;
-                if (verticalMap[i])
-                    vert++;
+                double horizontalAccuracy = Convert.ToDouble(HorizontalSearchAccuracyBox.Text);
+                double verticalAccuracy = Convert.ToDouble(VerticalSearchAccuracyBox.Text);
+                if ((horizontalAccuracy < 1) && (verticalAccuracy < 1))
+                {
+                    ProcessTextBox.Text += "Начало поиска поверхностей" + "\r\n";
+                    ProcessTextBox.Text += "Горизонтальная точность: " + horizontalAccuracy + " Вертикальная точность" + verticalAccuracy + " \r\n";
+
+                    horizontalMap = MyFaceAnaLizer.SearchHorizontalFaces(faces, horizontalAccuracy);
+                    verticalMap = MyFaceAnaLizer.SearchVerticalFaces(faces, verticalAccuracy);
+
+                    int hor = 0;
+                    int vert = 0;
+                    for (int i = 0; i < horizontalMap.Length; i++)
+                    {
+                        if (horizontalMap[i])
+                            hor++;
+                        if (verticalMap[i])
+                            vert++;
+                    }
+
+                    CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
+                    CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
+                    CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
+
+
+                    StartAddingButton.Enabled = true;
+                    StartDeletingButton.Enabled = true;
+                    //SearchAndSaveObjectButton.Enabled = true;
+                    SearchAndSaveSurfacesButton.Enabled = true;
+                    //MarkingAndSaveButton.Enabled = true;
+                }
+                else
+                {
+                    MessageBox.Show("Значение должно быть меньше 1!");
+                }
             }
-
-            CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
-            CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
-            CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
-
+            else
+            {
+                MessageBox.Show("Одно ил оба поля точности пусты, введите значения и повторите");
+            }
             open_file.Enabled = true;
             StartSearchHorizontalAndVerticalButton.Enabled = true;
-            StartAddingButton.Enabled = true;
-            StartDeletingButton.Enabled = true;
-            //SearchAndSaveObjectButton.Enabled = true;
-            SearchAndSaveSurfacesButton.Enabled = true;
-            //MarkingAndSaveButton.Enabled = true;
 
         }
 
@@ -169,37 +172,72 @@ namespace Analyse_your_obj
             SearchAndSaveSurfacesButton.Enabled = false;
             //MarkingAndSaveButton.Enabled = false;
             StartSearchHorizontalAndVerticalButton.Enabled = false;
-            
 
 
-            if (folderBrowserDialog.ShowDialog() != DialogResult.Cancel)
+            if (IgnoreNumberBox.Text != "")
             {
-                string path = "";
-                path = folderBrowserDialog.SelectedPath;
-                ProcessTextBox.Text += "Начат поиск и запись поверхностей" + "\r\n";
-                bool[] otherMap = new bool[horizontalMap.Length];
-                for (int i = 0; i < otherMap.Length; i++)
+                int number = Convert.ToInt32(IgnoreNumberBox.Text);
+                if (number < (faces.Count / 4))
                 {
-                    otherMap[i] = !(horizontalMap[i] || verticalMap[i]);
-                }
+                    if (folderBrowserDialog.ShowDialog() != DialogResult.Cancel)
+                    {
+                        string path = "";
+                        path = folderBrowserDialog.SelectedPath;
+                        ProcessTextBox.Text += "Начат поиск и запись поверхностей" + "\r\n";
+                        bool[] otherMap = new bool[horizontalMap.Length];
+                        for (int i = 0; i < otherMap.Length; i++)
+                        {
+                            otherMap[i] = !(horizontalMap[i] || verticalMap[i]);
+                        }
+                        DirectoryInfo directoryInfo;
+                        if (!Directory.Exists(path + "/faces"))
+                        {
+                            directoryInfo = new DirectoryInfo(path + "/faces");
+                            directoryInfo.Create();
 
-                MyCollector.WriteToObjFile(faces, vertices, vertexNormal, horizontalMap, path + "/horizontal.obj");
-                MyCollector.WriteToObjFile(faces, vertices, vertexNormal, verticalMap, path + "/vertical.obj");
-                MyCollector.WriteToObjFile(faces, vertices, vertexNormal, otherMap, path + "/other.obj");
-                ProcessTextBox.Text += "Общие файлы были созданы" + "\r\n";
-                ProcessTextBox.Text += "Начало поиска и записи отдельных поверхностей. Точность: " + Convert.ToInt32(IgnoreSmallFaces.Value) + " " + "\r\n";
-                MyCollector.WriteAllPartOfSurface(faces, horizontalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/horizontal");
-                ProcessTextBox.Text += "Созданы файлы горизонтальных поверхностей" + "\r\n";
-                MyCollector.WriteAllPartOfSurface(faces, verticalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/vertical");
-                ProcessTextBox.Text += "Созданы файлы вертикальных поверхностей" + "\r\n";
-                MyCollector.WriteAllPartOfSurface(faces, otherMap, vertices, vertexNormal, listOfTrianglesUsingPoint, Convert.ToInt32(IgnoreSmallFaces.Value), path + "/other");
-                ProcessTextBox.Text += "Созданы файлы других поверхностей" + "\r\n";
-                ProcessTextBox.Text += "Запись полностью завершена" + "\r\n";
+                        }
+                        else
+                        {
+                            int tmpNumber = 1;
+                            while (Directory.Exists(path + "/faces" + tmpNumber))
+                            {
+                                tmpNumber++;
+                            }
+                            directoryInfo = new DirectoryInfo(path + "/faces" + tmpNumber);
+                            directoryInfo.Create();
+                        }
+                        directoryInfo.CreateSubdirectory("common");
+                        directoryInfo.CreateSubdirectory("vertical");
+                        directoryInfo.CreateSubdirectory("horizontal");
+                        directoryInfo.CreateSubdirectory("other");
+
+                        MyCollector.WriteToObjFile(faces, vertices, vertexNormal, horizontalMap, directoryInfo.FullName + "/common/horizontal.obj");
+                        MyCollector.WriteToObjFile(faces, vertices, vertexNormal, verticalMap, directoryInfo.FullName + "/common/vertical.obj");
+                        MyCollector.WriteToObjFile(faces, vertices, vertexNormal, directoryInfo.FullName + "/common/other.obj");
+                        ProcessTextBox.Text += "Общие файлы были созданы" + "\r\n";
+                        ProcessTextBox.Text += "Начало поиска и записи отдельных поверхностей. Точность: " + number + " " + "\r\n";
+                        MyCollector.WriteAllPartOfSurface(faces, horizontalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, number, directoryInfo.FullName + "/horizontal/horizontal");
+                        ProcessTextBox.Text += "Созданы файлы горизонтальных поверхностей" + "\r\n";
+                        MyCollector.WriteAllPartOfSurface(faces, verticalMap, vertices, vertexNormal, listOfTrianglesUsingPoint, number, directoryInfo.FullName + "/vertical/vertical");
+                        ProcessTextBox.Text += "Созданы файлы вертикальных поверхностей" + "\r\n";
+                        MyCollector.WriteAllPartOfSurface(faces, otherMap, vertices, vertexNormal, listOfTrianglesUsingPoint, number, directoryInfo.FullName + "/other/other");
+                        ProcessTextBox.Text += "Созданы файлы других поверхностей" + "\r\n";
+                        ProcessTextBox.Text += "Запись полностью завершена" + "\r\n";
+
+                        MessageBox.Show("Сохранение произведено успешно!");
+                        
+
+                    }
+                    else
+                    {
+                        ProcessTextBox.Text += "Ошибка, путь не указан" + "\r\n";
+                    }
+                }
+                else
+                    MessageBox.Show("Значение отсечения не должно превышать 25% от числа треугольников");
             }
             else
-            {
-                ProcessTextBox.Text += "Ошибка, путь не указан" + "\r\n";
-            }
+                MessageBox.Show("Не указан уровень отсечения!");
 
             open_file.Enabled = true;
             StartSearchHorizontalAndVerticalButton.Enabled = true;
@@ -219,24 +257,29 @@ namespace Analyse_your_obj
             SearchAndSaveSurfacesButton.Enabled = false;
             //MarkingAndSaveButton.Enabled = false;
             StartSearchHorizontalAndVerticalButton.Enabled = false;
-
-            ProcessTextBox.Text += "Начато удаление одинокостоящих поверхностей" + "\r\n";
-            if (LiteDeletingRadioButton.Checked)
+            if (CountOfDeletingCiclesBox.Text != "")
             {
-                ProcessTextBox.Text += "Удалено из горизонтального массива: " +  MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, horizontalMap) + "\r\n";
-                ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, verticalMap) + "\r\n";
+                int number = Convert.ToInt32(CountOfDeletingCiclesBox.Text);
+                ProcessTextBox.Text += "Начато удаление одинокостоящих поверхностей" + "\r\n";
+                if (LiteDeletingRadioButton.Checked)
+                {
+                    ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, horizontalMap) + "\r\n";
+                    ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.LiteDeleteLonelyTriangle(vertices, faces, verticalMap) + "\r\n";
+                }
+                if (DeepDeletingRadioButton.Checked)
+                {
+                    ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, horizontalMap, number) + "\r\n";
+                    ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, verticalMap, number) + "\r\n";
+                }
+                if (ExtremeDeletingRadioButton.Checked)
+                {
+                    ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, horizontalMap, number) + "\r\n";
+                    ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, verticalMap, number) + "\r\n";
+                }
+                ProcessTextBox.Text += "Завершено удаление одинокостоящих поверхностей" + "\r\n";
             }
-            if (DeepDeletingRadioButton.Checked)
-            {
-                ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, horizontalMap, CountOfDeepDeletingCicles.Value) + "\r\n";
-                ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.DeepDeleteLonelyTriangle(vertices, faces, verticalMap, CountOfDeepDeletingCicles.Value) + "\r\n";
-            }
-            if (ExtremeDeletingRadioButton.Checked)
-            {
-                ProcessTextBox.Text += "Удалено из горизонтального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, horizontalMap, CountOfDeepDeletingCicles.Value) + "\r\n";
-                ProcessTextBox.Text += "Удалено из вертикального массива: " + MyFaceAnaLizer.ExtremeDeleteLonelyTriangle(vertices, faces, verticalMap, CountOfDeepDeletingCicles.Value) + "\r\n";
-            }
-            ProcessTextBox.Text += "Завершено удаление одинокостоящих поверхностей" + "\r\n";
+            else
+                MessageBox.Show("Не указано количество циклов!");
 
             open_file.Enabled = true;
             StartSearchHorizontalAndVerticalButton.Enabled = true;
@@ -272,9 +315,28 @@ namespace Analyse_your_obj
             //MarkingAndSaveButton.Enabled = false;
             StartSearchHorizontalAndVerticalButton.Enabled = false;
 
-            MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces,horizontalMap,MyNormal.IsHorizontal, HorizontalCountOfAdding.Value, Convert.ToDouble(HorizontalAccuracyAdding.Value)/200);
-            MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces, verticalMap, MyNormal.IsVertical, VerticalCountOfAdding.Value, Convert.ToDouble(VerticalAccuracyAdding.Value)/200);
+            if ((HorizontalAccuracyAddingBox.Text != "") && (CountOfHorizontalAddingCiclesBox.Text != "") && (VerticalAccuracyAddingBox.Text != "") && (CountVerticalAddingBox.Text != ""))
+            {
+                MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces,horizontalMap,MyNormal.IsHorizontal, Convert.ToInt32(CountOfHorizontalAddingCiclesBox.Text), Convert.ToDouble(HorizontalAccuracyAddingBox.Text));
+                MyFaceAnaLizer.SearchLostPoint(listOfTrianglesUsingPoint, vertices, faces, verticalMap, MyNormal.IsVertical, Convert.ToInt32(CountVerticalAddingBox.Text), Convert.ToDouble(VerticalAccuracyAddingBox.Text));
 
+
+                int hor = 0;
+                int vert = 0;
+                for (int i = 0; i < horizontalMap.Length; i++)
+                {
+                    if (horizontalMap[i])
+                        hor++;
+                    if (verticalMap[i])
+                        vert++;
+                }
+
+                CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
+                CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
+                CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
+
+                ProcessTextBox.Text += "Поиск завершён" + "\r\n";
+            }
             open_file.Enabled = true;
             StartSearchHorizontalAndVerticalButton.Enabled = true;
             StartAddingButton.Enabled = true;
@@ -282,22 +344,6 @@ namespace Analyse_your_obj
             //SearchAndSaveObjectButton.Enabled = true;
             SearchAndSaveSurfacesButton.Enabled = true;
             //MarkingAndSaveButton.Enabled = true;
-
-            int hor = 0;
-            int vert = 0;
-            for (int i = 0; i < horizontalMap.Length; i++)
-            {
-                if (horizontalMap[i])
-                    hor++;
-                if (verticalMap[i])
-                    vert++;
-            }
-
-            CountOfHorizontalTrianglesLabel.Text = "Горизонтальных треугольников: " + hor;
-            CountOfVerticalTrianglesLabel.Text = "Вертикальных треугольников: " + vert;
-            CountOfOtherTrianglesLabels.Text = "Других треугольников: " + (faces.Count - hor - vert);
-
-            ProcessTextBox.Text += "Поиск завершён" + "\r\n";
         }
 
         private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)
@@ -310,17 +356,23 @@ namespace Analyse_your_obj
 
         }
 
-
-        private void trackBar_Scroll(object sender, EventArgs e)
+        public int DS_Count(string s)
         {
-            NumberOfIgnoreSmallSurfaces.Text = Convert.ToString(IgnoreSmallFaces.Value);
-            NumberOfHorizontalSearchAccuracy.Text = Convert.ToString(Convert.ToDouble(HorizontalAccuracySearch.Value) / 200);
-            NumberOfVerticallSearchAccuracy.Text = Convert.ToString(Convert.ToDouble(VerticalAccuracySearch.Value) / 200);
-            NumberOfHorizontalAddingAccuracy.Text = Convert.ToString(Convert.ToDouble(HorizontalAccuracyAdding.Value) / 200);
-            NumberOfVerticalAddingAccuracy.Text = Convert.ToString(Convert.ToDouble(VerticalAccuracyAdding.Value) / 200);
-            NumberOfHorizontalAddingCicles.Text = Convert.ToString(HorizontalCountOfAdding.Value);
-            NumberOfVerticalAddingCicles.Text = Convert.ToString(VerticalCountOfAdding.Value);
-            NumberOfDeletibgCicles.Text = Convert.ToString(CountOfDeepDeletingCicles.Value);
+            string substr = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0].ToString();
+            int count = (s.Length - s.Replace(substr, "").Length) / substr.Length;
+            return count;
+        }
+
+        private void textBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+          
+            e.Handled = !(Char.IsDigit(e.KeyChar) || ((e.KeyChar == System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0]) && (DS_Count(((TextBox)sender).Text) < 1)) || (Char.IsControl(e.KeyChar)));
+        }
+
+        private void textBoxInt_KeyPress(object sender, KeyPressEventArgs e)
+        {
+
+            e.Handled = !(Char.IsDigit(e.KeyChar) || (Char.IsControl(e.KeyChar)));
         }
 
         private void HorizontalAccuracyAdding_Scroll(object sender, EventArgs e)
